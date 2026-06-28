@@ -1,0 +1,40 @@
+---
+description: Mandatory workflow — read context docs before planning or writing any code
+alwaysApply: true
+---
+
+# Read Context → Plan → Execute
+
+Before ANY code change in this repository, follow this exact sequence:
+
+## 1. READ (mandatory)
+
+Read these files first, in order:
+
+1. `docs/CONTEXT.md` — master context and non-negotiable rules
+2. `docs/ARCHITECTURE.md` — relevant sections for the task
+3. `docs/FILE_STRUCTURE.md` — determine correct package and file location
+
+Also read `AGENTS.md` for the full agent workflow.
+
+## 2. PLAN (mandatory)
+
+State before editing:
+
+- Goal and affected packages (`gateway`, `ai`, `chat`, `memory`, `auth`, `common`, `config`)
+- Files to create or modify
+- Brief implementation approach
+- Security or migration implications
+
+Do NOT write code until the plan is stated.
+
+## 3. EXECUTE
+
+- Minimal, focused diffs only
+- Match existing conventions in the target package
+- Place code in the correct module (see FILE_STRUCTURE.md)
+- Run `cd backend && ./gradlew build` when done
+
+## 4. UPDATE DOCS
+
+If the change affects architecture, packages, or rules, update the matching doc in `docs/`.

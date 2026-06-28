@@ -1,0 +1,39 @@
+---
+description: Security standards — zero trust, no sensitive logging, stateless auth
+globs: backend/**/{auth,ai,common}/**/*
+alwaysApply: false
+---
+
+# Security Standards
+
+## Authentication
+
+- Stateless only: `SessionCreationPolicy.STATELESS`
+- Current: API key via `X-API-Key` header (placeholder — JWT planned)
+- All `/api/v1/chat/**` requires authenticated principal
+- Actuator: only `health` and `info` are public
+
+## Prompt Firewall
+
+- Every user prompt passes through `PromptFirewall.validate()` before LLM call
+- New threat patterns → add to `PromptFirewall.BLOCKED_PATTERNS`
+- Reject with `PromptFirewallException`, never silently strip content
+
+## Headers (enforced in SecurityConfig)
+
+- Content-Security-Policy: `default-src 'self'`
+- X-Frame-Options: DENY
+- HSTS with includeSubDomains
+- Referrer-Policy: strict-origin-when-cross-origin
+
+## Secrets & Data
+
+- No hardcoded secrets — use `${ENV_VAR:default}` in `application.yml`
+- `messages.content` is a future encryption target — do not log it
+- Error responses: no stack traces, no internal messages (`server.error.*` is locked down)
+
+## Adding Auth Features
+
+- Work in `auth/` package only
+- Update `SecurityConfig` filter chain
+- Do not weaken existing endpoint protection to add new features

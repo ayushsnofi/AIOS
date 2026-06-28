@@ -1,0 +1,42 @@
+---
+description: Java backend coding standards for AIOS Spring Boot modules
+globs: backend/**/*.java
+alwaysApply: false
+---
+
+# Java Backend Standards
+
+## Style
+
+- Java 21 toolchain; use records/value objects for immutable DTOs where appropriate
+- Lombok: `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor` on entities; `@RequiredArgsConstructor` on services
+- Constructor injection only — no `@Autowired` on fields
+
+## Layering
+
+```java
+// ✅ Controller — validation + HTTP mapping only
+@PostMapping("/conversations/{id}/messages")
+public ApiResponse<ChatExchangeResponse> sendMessage(
+        @PathVariable UUID id, @Valid @RequestBody SendMessageRequest request) {
+    return ApiResponse.ok(chatService.sendMessage(id, request));
+}
+
+// ✅ Service — owns @Transactional and business logic
+@Transactional
+public ChatExchangeResponse sendMessage(UUID id, SendMessageRequest request) { ... }
+
+// ❌ BAD — controller calling repository or ChatModel directly
+```
+
+## New Files Checklist
+
+- DTO → `chat/dto/` with Jakarta validation annotations
+- Exception → `common/exception/` + handler in `GlobalExceptionHandler`
+- Config property → `application.yml` + field in `AiosProperties`
+- DB table → `V{n}__description.sql` + entity + repository
+
+## Testing
+
+- Smoke test: `@SpringBootTest` with `@ActiveProfiles("test")`
+- Run `.\gradlew.bat build` (Windows) or `./gradlew build` before completing

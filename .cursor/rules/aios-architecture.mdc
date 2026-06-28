@@ -1,0 +1,40 @@
+---
+description: AIOS architectural constraints — gateway-first, package boundaries, no bypass
+alwaysApply: true
+---
+
+# AIOS Architecture Rules
+
+## LLM Access
+
+- ALL LLM calls go through `ai/AIGatewayService` — never inject `ChatModel` outside `ai/`
+- Controllers and `ChatService` must not call Spring AI directly
+
+## Package Boundaries
+
+| Package | Responsibility |
+|---------|---------------|
+| `gateway/` | Filters, rate limiting — no business logic |
+| `ai/` | Firewall, routing, execution, audit — no REST or JPA |
+| `chat/` | Conversations, messages, chat API — no direct LLM calls |
+| `memory/` | Context orchestration — no chat persistence |
+| `auth/` | Security only |
+| `common/` | Shared DTOs, exceptions — no domain logic |
+| `config/` | Spring beans — no feature code |
+
+## Data & Schema
+
+- Schema changes → Flyway migration in `db/migration/`, never `ddl-auto: update`
+- JPA entities live in `chat/entity/`
+- `@Transactional` belongs on service classes, not controllers
+
+## API Conventions
+
+- All endpoints under `/api/v1/`
+- Responses use `ApiResponse<T>` or `ApiErrorResponse`
+- Chat endpoints require authentication
+
+## Logging
+
+- NEVER log prompt text, response content, or API keys
+- Audit logs: metadata only (model, latency, tokens, conversationId)
