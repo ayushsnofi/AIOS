@@ -1,0 +1,71 @@
+# =============================================================================
+# Dev profile — shared development / staging environment
+# =============================================================================
+# Usage:
+#   SPRING_PROFILES_ACTIVE=dev
+#   Set all secrets via environment variables or secret manager
+# =============================================================================
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ai_os}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      pool-name: AiosHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+      ssl:
+        enabled: ${REDIS_SSL:false}
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 1
+          max-wait: 3000ms
+
+  ai:
+    openai:
+      api-key: ${LITELLM_API_KEY}
+      base-url: ${LITELLM_BASE_URL}
+      chat:
+        options:
+          model: ${AIOS_DEFAULT_MODEL:phi4}
+          temperature: 0.7
+      embedding:
+        options:
+          model: ${AIOS_EMBEDDING_MODEL:nomic-embed-text}
+
+aios:
+  security:
+    placeholder-api-key: ${AIOS_API_KEY}
+  ai:
+    default-model: ${AIOS_DEFAULT_MODEL:phi4}
+    fallback-model: ${AIOS_FALLBACK_MODEL:qwen3}
+  cors:
+    allowed-origins: ${AIOS_CORS_ORIGINS:http://localhost:3000}
+
+logging:
+  level:
+    root: INFO
+    com.aios: DEBUG
+    org.springframework.security: WARN
+
+management:
+  endpoint:
+    health:
+      show-details: when_authorized

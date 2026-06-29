@@ -1,0 +1,87 @@
+# =============================================================================
+# Production profile — hardened runtime
+# =============================================================================
+# Usage:
+#   SPRING_PROFILES_ACTIVE=prod
+#   ALL secrets MUST be supplied via environment — no insecure defaults
+# =============================================================================
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT:5432}/${POSTGRES_DB}?sslmode=${POSTGRES_SSLMODE:require}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      pool-name: AiosHikariPool
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:20}
+      minimum-idle: ${HIKARI_MIN_IDLE:5}
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      leak-detection-threshold: 60000
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      timeout: 5000ms
+      ssl:
+        enabled: ${REDIS_SSL:true}
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 5000ms
+
+  ai:
+    openai:
+      api-key: ${LITELLM_API_KEY}
+      base-url: ${LITELLM_BASE_URL}
+      chat:
+        options:
+          model: ${AIOS_DEFAULT_MODEL:qwen3}
+          temperature: ${AIOS_CHAT_TEMPERATURE:0.5}
+      embedding:
+        options:
+          model: ${AIOS_EMBEDDING_MODEL:nomic-embed-text}
+
+aios:
+  security:
+    placeholder-api-key: ${AIOS_API_KEY}
+  ai:
+    default-model: ${AIOS_DEFAULT_MODEL:qwen3}
+    fallback-model: ${AIOS_FALLBACK_MODEL:phi4}
+    max-retries: 3
+    retry-delay-ms: 1000
+  memory:
+    retrieval-limit: ${AIOS_MEMORY_RETRIEVAL_LIMIT:5}
+    min-trust-score: ${AIOS_MEMORY_MIN_TRUST:0.7}
+    semantic-cache-max-entries: ${AIOS_SEMANTIC_CACHE_MAX:200}
+    semantic-cache-ttl-seconds: ${AIOS_SEMANTIC_CACHE_TTL:1800}
+  cors:
+    allowed-origins: ${AIOS_CORS_ORIGINS}
+
+logging:
+  level:
+    root: WARN
+    com.aios: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+server:
+  shutdown: graceful

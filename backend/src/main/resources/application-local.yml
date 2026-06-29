@@ -1,0 +1,64 @@
+# =============================================================================
+# Local profile — developer machine + Docker Compose (default)
+# =============================================================================
+# Usage:
+#   docker compose up -d
+#   cd backend && ./gradlew bootRun
+# =============================================================================
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ai_os}
+    username: ${POSTGRES_USER:aios}
+    password: ${POSTGRES_PASSWORD:aios_dev_password}
+    hikari:
+      pool-name: AiosHikariPool
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 4
+          max-idle: 4
+          min-idle: 0
+          max-wait: 2000ms
+
+  ai:
+    openai:
+      api-key: ${LITELLM_API_KEY:sk-litellm-local}
+      base-url: ${LITELLM_BASE_URL:http://localhost:4000}
+      chat:
+        options:
+          model: phi4
+          temperature: 0.7
+      embedding:
+        options:
+          model: ${AIOS_EMBEDDING_MODEL:nomic-embed-text}
+
+aios:
+  security:
+    placeholder-api-key: ${AIOS_API_KEY:dev-api-key-change-me}
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:5173
+      - http://127.0.0.1:3000
+
+logging:
+  level:
+    root: INFO
+    com.aios: DEBUG
+    org.springframework.security: INFO

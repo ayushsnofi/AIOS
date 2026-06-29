@@ -67,15 +67,31 @@ curl -X POST http://localhost:8080/api/v1/chat/conversations/{conversation-id}/m
   -d '{"content": "Hello, what can you help me with?"}'
 ```
 
+### Environment setup
+
+```bash
+cp .env.example .env          # fill in secrets locally — never commit .env
+export SPRING_PROFILES_ACTIVE=local
+```
+
+| Profile | File | Use case |
+|---------|------|----------|
+| `local` (default) | `application-local.yml` | Docker Compose on localhost |
+| `dev` | `application-dev.yml` | Shared dev/staging server |
+| `prod` | `application-prod.yml` | Production hardened |
+
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
+See [.env.example](.env.example) for the full list. Key variables:
+
+| Variable | Default (local) | Description |
+|----------|-----------------|-------------|
+| `SPRING_PROFILES_ACTIVE` | `local` | Config profile: `local`, `dev`, `prod` |
 | `AIOS_API_KEY` | `dev-api-key-change-me` | API key for `/api/v1/chat/**` |
 | `LITELLM_BASE_URL` | `http://localhost:4000` | LiteLLM proxy base URL |
 | `LITELLM_API_KEY` | `sk-litellm-local` | LiteLLM API key |
-
-## API Endpoints
+| `POSTGRES_*` | see `.env.example` | PostgreSQL connection |
+| `REDIS_*` | see `.env.example` | Redis connection |
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
@@ -90,6 +106,8 @@ curl -X POST http://localhost:8080/api/v1/chat/conversations/{conversation-id}/m
 | [docs/CONTEXT.md](docs/CONTEXT.md) | **Start here** — master context for AI agents and developers |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, request flows, security model |
 | [docs/FILE_STRUCTURE.md](docs/FILE_STRUCTURE.md) | Directory layout and package responsibilities |
+| [docs/adr/](docs/adr/) | Architecture Decision Records (Spring Boot, Spring AI, LiteLLM, Ollama, Postgres) |
+| [docs/security/](docs/security/) | Threat model and asset inventory |
 | [AGENTS.md](AGENTS.md) | Agent workflow: read context → plan → execute |
 | [.cursor/rules/](.cursor/rules/) | Cursor AI rules enforced during development |
 
@@ -108,6 +126,9 @@ AIOS/
 │       └── config/          # App-wide Spring configuration
 ├── docker-compose.yml       # PostgreSQL + Redis
 ├── docs/                    # Architecture & context documentation
+│   ├── adr/                 # Architecture Decision Records
+│   └── security/            # Threat model & asset inventory
+├── .env.example             # Environment variable template (copy to .env)
 └── .cursor/rules/           # AI agent rules
 ```
 

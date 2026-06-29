@@ -1,18 +1,21 @@
+# =============================================================================
+# AIOS Backend — Base Configuration (all profiles)
+# =============================================================================
+# Profile-specific overrides:
+#   local  → application-local.yml  (default, Docker Compose on localhost)
+#   dev    → application-dev.yml    (shared development environment)
+#   prod   → application-prod.yml   (production hardened)
+#
+# Activate: SPRING_PROFILES_ACTIVE=local|dev|prod
+# Secrets:  see /.env.example — never commit real values
+# =============================================================================
+
 spring:
   application:
     name: aios-backend
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/ai_os
-    username: aios
-    password: aios_dev_password
-    hikari:
-      pool-name: AiosHikariPool
-      maximum-pool-size: 10
-      minimum-idle: 2
-      idle-timeout: 300000
-      max-lifetime: 1800000
-      connection-timeout: 20000
+  profiles:
+    default: local
 
   jpa:
     open-in-view: false
@@ -29,41 +32,19 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      timeout: 2000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          max-wait: 2000ms
-
   ai:
-    openai:
-      api-key: ${LITELLM_API_KEY:sk-litellm-local}
-      base-url: ${LITELLM_BASE_URL:http://localhost:4000}
-      chat:
-        options:
-          model: phi4
-          temperature: 0.7
-      embedding:
-        options:
-          model: ${AIOS_EMBEDDING_MODEL:nomic-embed-text}
     vectorstore:
       pgvector:
         index-type: HNSW
         distance-type: COSINE_DISTANCE
-        dimensions: 1536
+        dimensions: ${AIOS_EMBEDDING_DIMENSIONS:1536}
         max-document-batch-size: 1000
         initialize-schema: false
         vector-table-name: memories
         schema-name: public
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   error:
     include-message: never
     include-binding-errors: never
@@ -81,27 +62,24 @@ management:
 aios:
   security:
     api-key-header: X-API-Key
-    placeholder-api-key: ${AIOS_API_KEY:dev-api-key-change-me}
+    placeholder-api-key: ${AIOS_API_KEY:changeme}
   ai:
     default-model: phi4
     fallback-model: qwen3
     max-retries: 2
     retry-delay-ms: 500
   memory:
-    embedding-model: nomic-embed-text
-    embedding-dimensions: 1536
+    embedding-model: ${AIOS_EMBEDDING_MODEL:nomic-embed-text}
+    embedding-dimensions: ${AIOS_EMBEDDING_DIMENSIONS:1536}
     retrieval-limit: 5
     min-trust-score: 0.5
     semantic-cache-max-distance: 0.05
     semantic-cache-max-entries: 100
     semantic-cache-ttl-seconds: 3600
-  cors:
-    allowed-origins:
-      - http://localhost:3000
-      - http://localhost:5173
+    vector-store-enabled: true
 
 logging:
   level:
     root: INFO
-    com.aios: DEBUG
+    com.aios: INFO
     org.springframework.security: INFO
