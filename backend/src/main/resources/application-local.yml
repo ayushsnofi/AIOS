@@ -12,9 +12,10 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ai_os}
-    username: ${POSTGRES_USER:aios}
-    password: ${POSTGRES_PASSWORD:aios_dev_password}
+    url: jdbc:postgresql://localhost:5432/ai_os
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: AiosHikariPool
       maximum-pool-size: 5
@@ -22,6 +23,19 @@ spring:
       idle-timeout: 300000
       max-lifetime: 1800000
       connection-timeout: 20000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 
   data:
     redis:
