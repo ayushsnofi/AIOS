@@ -1,2 +1,7 @@
 .env
 node_modules/
+# Configuration and Secrets
+
+.env.local
+*.properties
+!src/main/resources/application*.yml
