@@ -23,6 +23,7 @@ import java.util.UUID;
 public class Message {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "uuid")
     private UUID id;
 

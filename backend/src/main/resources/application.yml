@@ -14,6 +14,10 @@ spring:
   application:
     name: aios-backend
 
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
+
   profiles:
     default: local
 

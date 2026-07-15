@@ -12,9 +12,9 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ai_os
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ai_os}
+    username: ${POSTGRES_USER:aios}
+    password: ${POSTGRES_PASSWORD:aios_dev_password}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: AiosHikariPool
