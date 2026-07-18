@@ -22,6 +22,19 @@ public class JwtService{
 
     public boolean isTokenValid(String token,String userEmail){
         final String userName=extractUserName(token);
-        
+        return (userName.equals(userEmail))&&!isTokenExpired(token);
+    }
+
+    public boolean isTokenExpired(String token){
+        return extractExpiration(token).before(new Date());
+    }
+
+    public Date extractExpiration(String token){
+        return extractClaim(token,Claims::getExpiration);
+    }
+
+    private Claims extractAllClaims(String token){
+        return Jwts.parserBuilder().setSigningKey(getSigningKey())
+        .build().parseClaimsJws(token).getBody();
     }
 }
